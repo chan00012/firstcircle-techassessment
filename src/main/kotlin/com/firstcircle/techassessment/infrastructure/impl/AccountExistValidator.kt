@@ -1,4 +1,4 @@
-package com.firstcircle.techassessment.infrastructure
+package com.firstcircle.techassessment.infrastructure.impl
 
 import com.firstcircle.techassessment.domain.AccountQueryService
 import com.firstcircle.techassessment.domain.Validator

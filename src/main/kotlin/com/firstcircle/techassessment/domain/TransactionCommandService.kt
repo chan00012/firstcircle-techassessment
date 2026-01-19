@@ -1,15 +1,14 @@
 package com.firstcircle.techassessment.domain
 
-import com.firstcircle.techassessment.domain.dto.TransactionCreateInput
-import com.firstcircle.techassessment.domain.model.Transaction
+import com.firstcircle.techassessment.domain.dto.TransactionCommand
 
-interface TransactionCommandService<INPUT : TransactionCreateInput> {
-    fun create(input: INPUT): List<Transaction> {
+interface TransactionCommandService<INPUT : TransactionCommand> {
+    fun create(input: INPUT) {
         validate(input)
         return persist(input)
     }
 
     fun validate(input: INPUT)
 
-    fun persist(input: INPUT): List<Transaction>
+    fun persist(input: INPUT)
 }

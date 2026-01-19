@@ -1,13 +1,14 @@
 package com.firstcircle.techassessment.domain.impl
 
+import com.firstcircle.techassessment.domain.LockableTransactionCommandService
 import com.firstcircle.techassessment.domain.TransactionCommandService
-import com.firstcircle.techassessment.domain.dto.TransferTransactionCreateInput
+import com.firstcircle.techassessment.domain.dto.TransferTransactionCommand
 import com.firstcircle.techassessment.domain.model.Direction
-import com.firstcircle.techassessment.domain.model.Transaction
 import com.firstcircle.techassessment.domain.model.TransferTransaction
-import com.firstcircle.techassessment.infrastructure.AccountExistValidator
-import com.firstcircle.techassessment.infrastructure.RemainingBalanceValidator
-import com.firstcircle.techassessment.infrastructure.RemainingBalanceValidatorInput
+import com.firstcircle.techassessment.infrastructure.LockService
+import com.firstcircle.techassessment.infrastructure.impl.AccountExistValidator
+import com.firstcircle.techassessment.infrastructure.impl.RemainingBalanceValidator
+import com.firstcircle.techassessment.infrastructure.impl.RemainingBalanceValidatorInput
 import com.firstcircle.techassessment.infrastructure.repository.JpaTransactionRepository
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -16,9 +17,10 @@ import java.time.Instant
 class TransferTransactionCommandService(
     private val jpaTransactionRepository: JpaTransactionRepository,
     private val accountExistValidator: AccountExistValidator,
-    private val remainingBalanceValidator: RemainingBalanceValidator
-) : TransactionCommandService<TransferTransactionCreateInput> {
-    override fun validate(input: TransferTransactionCreateInput) {
+    private val remainingBalanceValidator: RemainingBalanceValidator,
+    lockService: LockService
+) : LockableTransactionCommandService<TransferTransactionCommand>(lockService) {
+    override fun validate(input: TransferTransactionCommand) {
         accountExistValidator.validate(input.accountId)
         accountExistValidator.validate(input.transferAccountId)
         remainingBalanceValidator.validate(
@@ -29,7 +31,7 @@ class TransferTransactionCommandService(
         )
     }
 
-    override fun persist(input: TransferTransactionCreateInput): List<Transaction> {
+    override fun persist(input: TransferTransactionCommand) {
         val sourceTransaction = TransferTransaction(
             accountId = input.accountId,
             transferAccountId = input.transferAccountId,
@@ -46,8 +48,6 @@ class TransferTransactionCommandService(
             createdOn = Instant.now(),
         )
 
-        val savedTransactions =
-            jpaTransactionRepository.saveAll(listOf(sourceTransaction.toJpa(), destinationTransaction.toJpa()))
-        return savedTransactions.map { it.toDomain() }
+        jpaTransactionRepository.saveAll(listOf(sourceTransaction.toJpa(), destinationTransaction.toJpa()))
     }
 }

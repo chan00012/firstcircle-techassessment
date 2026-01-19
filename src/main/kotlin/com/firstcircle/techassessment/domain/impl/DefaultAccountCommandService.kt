@@ -2,7 +2,7 @@ package com.firstcircle.techassessment.domain.impl
 
 import com.firstcircle.techassessment.domain.AccountCommandService
 import com.firstcircle.techassessment.domain.dto.AccountCreationInput
-import com.firstcircle.techassessment.domain.dto.DepositTransactionCreateInput
+import com.firstcircle.techassessment.domain.dto.DepositTransactionCommand
 import com.firstcircle.techassessment.domain.model.Account
 import com.firstcircle.techassessment.infrastructure.entity.JpaAccount
 import com.firstcircle.techassessment.infrastructure.repository.JpaAccountRepository
@@ -35,7 +35,7 @@ class DefaultAccountCommandService(
 
         val savedAccount = jpaAccountRepository.save(jpaAccount)
         depositTransactionCommandService.create(
-            DepositTransactionCreateInput(
+            DepositTransactionCommand(
                 accountId = savedAccount.id!!,
                 amount = input.initialDeposit
             )
