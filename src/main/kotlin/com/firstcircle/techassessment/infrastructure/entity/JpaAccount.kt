@@ -35,13 +35,4 @@ class JpaAccount(
 
     @Column(name = "created_on", nullable = false)
     val createdOn: Instant
-) {
-    fun toDomain(): Account = Account(
-        id = id!!,
-        accountNumber = accountNumber,
-        accountType = accountType,
-        currency = currency,
-        createdOn = createdOn
-    )
-
-}
+)

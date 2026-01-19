@@ -1,11 +1,13 @@
 package com.firstcircle.techassessment.domain.impl
 
+import com.firstcircle.techassessment.domain.model.Account
 import com.firstcircle.techassessment.domain.model.Amount
 import com.firstcircle.techassessment.domain.model.DepositTransaction
 import com.firstcircle.techassessment.domain.model.Transaction
 import com.firstcircle.techassessment.domain.model.TransactionType
 import com.firstcircle.techassessment.domain.model.TransferTransaction
 import com.firstcircle.techassessment.domain.model.WithdrawTransaction
+import com.firstcircle.techassessment.infrastructure.entity.JpaAccount
 import com.firstcircle.techassessment.infrastructure.entity.JpaTransaction
 
 fun JpaTransaction.toDomain(): Transaction {
@@ -37,3 +39,11 @@ fun JpaTransaction.toDomain(): Transaction {
         else -> throw IllegalArgumentException("Unsupported transaction type: $transactionType")
     }
 }
+
+fun JpaAccount.toDomain(): Account = Account(
+    id = id!!,
+    accountNumber = accountNumber,
+    accountType = accountType,
+    currency = currency,
+    createdOn = createdOn
+)
