@@ -1,7 +1,6 @@
 package com.firstcircle.techassessment.domain.impl
 
 import com.firstcircle.techassessment.domain.LockableTransactionCommandService
-import com.firstcircle.techassessment.domain.TransactionCommandService
 import com.firstcircle.techassessment.domain.dto.TransferTransactionCommand
 import com.firstcircle.techassessment.domain.model.Direction
 import com.firstcircle.techassessment.domain.model.TransferTransaction
@@ -20,30 +19,30 @@ class TransferTransactionCommandService(
     private val remainingBalanceValidator: RemainingBalanceValidator,
     lockService: LockService
 ) : LockableTransactionCommandService<TransferTransactionCommand>(lockService) {
-    override fun validate(input: TransferTransactionCommand) {
-        accountExistValidator.validate(input.accountId)
-        accountExistValidator.validate(input.transferAccountId)
+    override fun validate(command: TransferTransactionCommand) {
+        accountExistValidator.validate(command.accountId)
+        accountExistValidator.validate(command.transferAccountId)
         remainingBalanceValidator.validate(
             RemainingBalanceValidatorInput(
-                accountId = input.accountId,
-                amount = input.amount
+                accountId = command.accountId,
+                amount = command.amount
             )
         )
     }
 
-    override fun persist(input: TransferTransactionCommand) {
+    override fun persist(command: TransferTransactionCommand) {
         val sourceTransaction = TransferTransaction(
-            accountId = input.accountId,
-            transferAccountId = input.transferAccountId,
-            amount = input.amount,
+            accountId = command.accountId,
+            transferAccountId = command.transferAccountId,
+            amount = command.amount,
             direction = Direction.DECREASE,
             createdOn = Instant.now(),
         )
 
         val destinationTransaction = TransferTransaction(
-            accountId = input.transferAccountId,
-            transferAccountId = input.accountId,
-            amount = input.amount,
+            accountId = command.transferAccountId,
+            transferAccountId = command.accountId,
+            amount = command.amount,
             direction = Direction.INCREASE,
             createdOn = Instant.now(),
         )

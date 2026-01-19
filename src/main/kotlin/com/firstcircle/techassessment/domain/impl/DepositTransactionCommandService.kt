@@ -15,14 +15,14 @@ class DepositTransactionCommandService(
     private val accountExistValidator: AccountExistValidator,
     lockService: LockService
 ) : LockableTransactionCommandService<DepositTransactionCommand>(lockService) {
-    override fun validate(input: DepositTransactionCommand) {
-        accountExistValidator.validate(input.accountId)
+    override fun validate(command: DepositTransactionCommand) {
+        accountExistValidator.validate(command.accountId)
     }
 
-    override fun persist(input: DepositTransactionCommand) {
+    override fun persist(command: DepositTransactionCommand) {
         val depositTransaction = DepositTransaction(
-            accountId = input.accountId,
-            amount = input.amount,
+            accountId = command.accountId,
+            amount = command.amount,
             createdOn = Instant.now()
         )
 

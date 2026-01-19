@@ -1,9 +1,8 @@
 package com.firstcircle.techassessment.domain
 
-import com.firstcircle.techassessment.domain.dto.AccountCreationInput
-import com.firstcircle.techassessment.domain.model.Account
+import com.firstcircle.techassessment.domain.dto.AccountCommand
 
 interface AccountCommandService {
-    fun create(input: AccountCreationInput): Account
+    fun create(command: AccountCommand): Long
 
 }

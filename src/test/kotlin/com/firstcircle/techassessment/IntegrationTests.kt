@@ -2,7 +2,7 @@ package com.firstcircle.techassessment
 
 import com.firstcircle.techassessment.domain.AccountCommandService
 import com.firstcircle.techassessment.domain.AccountQueryService
-import com.firstcircle.techassessment.domain.dto.AccountCreationInput
+import com.firstcircle.techassessment.domain.dto.AccountCommand
 import com.firstcircle.techassessment.domain.dto.DepositTransactionCommand
 import com.firstcircle.techassessment.domain.dto.TransferTransactionCommand
 import com.firstcircle.techassessment.domain.dto.WithdrawTransactionCommand
@@ -50,7 +50,7 @@ class IntegrationTests {
     @Test
     fun `vanilla flow`() {
         val firstAccount = accountCommandService.create(
-            AccountCreationInput(
+            AccountCommand(
                 accountType = AccountType.SAVINGS,
                 initialDeposit = Amount(
                     value = BigDecimal.valueOf(100),
@@ -60,7 +60,7 @@ class IntegrationTests {
         )
 
         val secondAccount = accountCommandService.create(
-            AccountCreationInput(
+            AccountCommand(
                 accountType = AccountType.SAVINGS,
                 initialDeposit = Amount(
                     value = BigDecimal.valueOf(100),
@@ -69,12 +69,12 @@ class IntegrationTests {
             )
         )
 
-        logger.info { "$firstAccount was created" }
-        logger.info { "$secondAccount was created" }
+        logger.info { "${accountQueryService.getById(firstAccount)} was created" }
+        logger.info { "${accountQueryService.getById(firstAccount)} was created" }
 
         depositTransactionCommandService.create(
             DepositTransactionCommand(
-                accountId = firstAccount.id,
+                accountId = firstAccount,
                 amount = Amount(
                     value = BigDecimal.valueOf(100),
                     currency = CurrencyCode.PHP
@@ -82,19 +82,13 @@ class IntegrationTests {
             )
         )
 
-        logger.info { "account ${firstAccount.id} current balance: ${accountQueryService.getAccountBalance(firstAccount.id)}" }
-        logger.info {
-            "account ${secondAccount.id} current balance: ${
-                accountQueryService.getAccountBalance(
-                    secondAccount.id
-                )
-            }"
-        }
+        logger.info { "account $firstAccount current balance: ${accountQueryService.getAccountBalance(firstAccount)}" }
+        logger.info { "account $secondAccount current balance: ${accountQueryService.getAccountBalance(secondAccount)}" }
         logger.info { "---" }
 
         withdrawTransactionCommandService.create(
             WithdrawTransactionCommand(
-                accountId = firstAccount.id,
+                accountId = firstAccount,
                 amount = Amount(
                     value = BigDecimal.valueOf(99),
                     currency = CurrencyCode.PHP
@@ -102,20 +96,14 @@ class IntegrationTests {
             )
         )
 
-        logger.info { "account ${firstAccount.id} current balance: ${accountQueryService.getAccountBalance(firstAccount.id)}" }
-        logger.info {
-            "account ${secondAccount.id} current balance: ${
-                accountQueryService.getAccountBalance(
-                    secondAccount.id
-                )
-            }"
-        }
+        logger.info { "account $firstAccount current balance: ${accountQueryService.getAccountBalance(firstAccount)}" }
+        logger.info { "account $secondAccount current balance: ${accountQueryService.getAccountBalance(secondAccount)}" }
         logger.info { "---" }
 
         transferTransactionCommandService.create(
             TransferTransactionCommand(
-                accountId = firstAccount.id,
-                transferAccountId = secondAccount.id,
+                accountId = firstAccount,
+                transferAccountId = secondAccount,
                 amount = Amount(
                     value = BigDecimal.valueOf(1),
                     currency = CurrencyCode.PHP
@@ -123,17 +111,12 @@ class IntegrationTests {
             )
         )
 
-        logger.info { "account ${firstAccount.id} current balance: ${accountQueryService.getAccountBalance(firstAccount.id)}" }
-        logger.info {
-            "account ${secondAccount.id} current balance: ${
-                accountQueryService.getAccountBalance(
-                    secondAccount.id
-                )
-            }"
-        }
+        logger.info { "account $firstAccount current balance: ${accountQueryService.getAccountBalance(firstAccount)}" }
+        logger.info { "account $secondAccount current balance: ${accountQueryService.getAccountBalance(secondAccount)}" }
+        logger.info { "---" }
 
-        val firstAccountBalance = accountQueryService.getAccountBalance(firstAccount.id)
-        val secondAccountBalance = accountQueryService.getAccountBalance(secondAccount.id)
+        val firstAccountBalance = accountQueryService.getAccountBalance(firstAccount)
+        val secondAccountBalance = accountQueryService.getAccountBalance(secondAccount)
 
         assertThat(firstAccountBalance).isEqualTo(BigDecimal("100.00"))
         assertThat(secondAccountBalance).isEqualTo(BigDecimal("101.00"))
@@ -142,7 +125,7 @@ class IntegrationTests {
     @Test
     fun `concurrent requests`(): Unit = runBlocking {
         val account = accountCommandService.create(
-            AccountCreationInput(
+            AccountCommand(
                 accountType = AccountType.SAVINGS,
                 initialDeposit = Amount(
                     value = BigDecimal.valueOf(100),
@@ -156,7 +139,7 @@ class IntegrationTests {
                 runCatching {
                     withdrawTransactionCommandService.create(
                         WithdrawTransactionCommand(
-                            accountId = account.id,
+                            accountId = account,
                             amount = Amount(BigDecimal.valueOf(100), CurrencyCode.PHP)
                         )
                     )
@@ -165,7 +148,7 @@ class IntegrationTests {
             }
         }.awaitAll()
 
-        logger.info { "account ${account.id} current balance: ${accountQueryService.getAccountBalance(account.id)}" }
+        logger.info { "account $account current balance: ${accountQueryService.getAccountBalance(account)}" }
 
         val success = results.count { it.isSuccess }
         val failures = results.count { it.isFailure }

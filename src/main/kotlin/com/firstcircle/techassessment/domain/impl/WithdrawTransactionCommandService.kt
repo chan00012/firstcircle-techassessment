@@ -18,20 +18,20 @@ class WithdrawTransactionCommandService(
     private val remainingBalanceValidator: RemainingBalanceValidator,
     lockService: LockService
 ) : LockableTransactionCommandService<WithdrawTransactionCommand>(lockService) {
-    override fun validate(input: WithdrawTransactionCommand) {
-        accountExistValidator.validate(input.accountId)
+    override fun validate(command: WithdrawTransactionCommand) {
+        accountExistValidator.validate(command.accountId)
         remainingBalanceValidator.validate(
             RemainingBalanceValidatorInput(
-                accountId = input.accountId,
-                amount = input.amount
+                accountId = command.accountId,
+                amount = command.amount
             )
         )
     }
 
-    override fun persist(input: WithdrawTransactionCommand) {
+    override fun persist(command: WithdrawTransactionCommand) {
         val withdrawTransaction = WithdrawTransaction(
-            accountId = input.accountId,
-            amount = input.amount,
+            accountId = command.accountId,
+            amount = command.amount,
             createdOn = Instant.now(),
         )
 

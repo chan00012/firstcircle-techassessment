@@ -4,14 +4,14 @@ import com.firstcircle.techassessment.domain.dto.TransactionCommand
 import com.firstcircle.techassessment.infrastructure.LockService
 import org.springframework.transaction.annotation.Transactional
 
-abstract class LockableTransactionCommandService<INPUT : TransactionCommand>(
+abstract class LockableTransactionCommandService<C : TransactionCommand>(
     private val lockService: LockService
-) : TransactionCommandService<INPUT> {
+) : TransactionCommandService<C> {
 
     @Transactional
-    override fun create(input: INPUT) {
-        lockService.acquireLock(input.accountId)
-        validate(input)
-        persist(input)
+    override fun create(command: C) {
+        lockService.acquireLock(command.accountId)
+        validate(command)
+        persist(command)
     }
 }
