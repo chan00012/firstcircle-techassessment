@@ -1,5 +1,5 @@
 package com.firstcircle.techassessment.infrastructure
 
 interface LockService {
-    fun acquireLock(id: Long)
+    fun <T> withLock(id: Long, action: () -> T): T
 }

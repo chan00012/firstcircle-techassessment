@@ -10,8 +10,9 @@ abstract class LockableTransactionCommandService<C : TransactionCommand>(
 
     @Transactional
     override fun create(command: C) {
-        lockService.acquireLock(command.accountId)
-        validate(command)
-        persist(command)
+        lockService.withLock(command.accountId) {
+            validate(command)
+            persist(command)
+        }
     }
 }

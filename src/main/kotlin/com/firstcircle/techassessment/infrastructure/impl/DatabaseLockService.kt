@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component
 class DatabaseLockService(
     private val jpaAccountRepository: JpaAccountRepository
 ) : LockService {
-    override fun acquireLock(id: Long) {
+
+    override fun <T> withLock(id: Long, action: () -> T): T {
         jpaAccountRepository.findByIdWithLock(id)
+        return action()
     }
 }
